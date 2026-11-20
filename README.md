@@ -29,7 +29,25 @@
 
 ## 安装
 
-将本仓库完整放入 Codex 的个人 skill 目录，目录名保持为 `hku-dataset-curation`：
+### 推荐：使用 npx 安装
+
+需要 Node.js 22.20 或更高版本。在项目目录中运行：
+
+```bash
+npx skills add Spercent521/hku-dataset-curation
+```
+
+按提示选择 skill 和目标 AI 工具（如 Codex）。默认安装到当前项目；希望跨项目使用时，加上 `-g`：
+
+```bash
+npx skills add Spercent521/hku-dataset-curation -g
+```
+
+这里使用的是开源的 [skills 安装工具](https://github.com/vercel-labs/skills)，它从 GitHub 获取本 skill，无需手动下载或复制文件。安装位置由该工具管理，不必再执行下面的手动安装。
+
+### 备选：手动安装
+
+不使用 npx 时，可将本仓库完整放入 Codex 的个人 skill 目录，目录名保持为 `hku-dataset-curation`：
 
 ```text
 ~/.codex/skills/hku-dataset-curation/
@@ -63,14 +81,14 @@ git clone https://github.com/Spercent521/hku-dataset-curation.git ~/.codex/skill
 
 ## 文件说明
 
-| 文件 | 用途 |
-| --- | --- |
-| `SKILL.md` | 入口、工作流程与不可违反的边界 |
-| `agents/openai.yaml` | 显示名称和默认调用提示 |
+| 文件                            | 用途                           |
+| ------------------------------- | ------------------------------ |
+| `SKILL.md`                      | 入口、工作流程与不可违反的边界 |
+| `agents/openai.yaml`            | 显示名称和默认调用提示         |
 | `references/sample-standard.md` | 八阶段布局、内容类型和命名规范 |
-| `references/evidence-rules.md` | 来源、时间关系、保真与冲突处理 |
-| `references/quality-check.md` | 核对与验收规则 |
-| `scripts/inspect_pptx.py` | 本地盘点 PPTX 对象的辅助工具 |
+| `references/evidence-rules.md`  | 来源、时间关系、保真与冲突处理 |
+| `references/quality-check.md`   | 核对与验收规则                 |
+| `scripts/inspect_pptx.py`       | 本地盘点 PPTX 对象的辅助工具   |
 
 辅助脚本仅依赖 Python 3.8+ 标准库：
 
