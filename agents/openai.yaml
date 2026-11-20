@@ -1,0 +1,4 @@
+interface:
+  display_name: "HKU-数据集整理"
+  short_description: "按病例样例整理混乱的骨科图文资料，允许缺项并逐项核对来源"
+  default_prompt: "使用 $hku-dataset-curation，按 HKU 样例整理我提供的原始病例材料，保留缺项、核对图文来源，并输出统一的八阶段病例目录。"
