@@ -100,7 +100,7 @@ npx skills update hku-dataset-curation
 | `references/quality-check.md`   | 核对与验收规则                 |
 | `scripts/inspect_pptx.py`       | 本地盘点 PPTX 对象的辅助工具   |
 
-辅助脚本仅依赖 Python 3.8+ 标准库：
+PPTX 检查脚本仅依赖 Python 3.8+ 标准库：
 
 ```bash
 python3 scripts/inspect_pptx.py /path/to/source.pptx
@@ -108,6 +108,11 @@ python3 scripts/inspect_pptx.py /path/to/source.pptx --output /path/to/work/inve
 ```
 
 该脚本不导出病例成品、不识别图片语义，也不自动决定病例归属或阶段。输出清单属于临时核对资料，不应放进最终病例目录。旧 PPT 需先在本地工作副本中转换，并核对转换保真。
+
+## 上传数据集
+
+按年份上传到 Hugging Face 的目录摆放、登录和命令，见 [scripts/README.md](scripts/README.md)。
+上传是独立操作，不会在整理病例时自动执行。
 
 ## 隐私与边界
 
