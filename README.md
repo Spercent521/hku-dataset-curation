@@ -67,6 +67,14 @@ git clone https://github.com/Spercent521/hku-dataset-curation.git ~/.codex/skill
 
 不要只复制 `SKILL.md`，配套规范和辅助脚本也需要保留。如果目标目录已经存在，应先检查已有版本，不要直接覆盖。
 
+## 更新
+
+通过 npx 安装后，运行一行命令即可更新本 skill；按提示选择原来的安装范围（项目或全局）：
+
+```bash
+npx skills update hku-dataset-curation
+```
+
 ## 使用
 
 向支持本地文件访问和图文检查的 AI 助手提供原始材料位置、独立输出位置，以及可选的参考样例。例如：
