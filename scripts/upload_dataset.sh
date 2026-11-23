@@ -133,7 +133,7 @@ while IFS= read -r -d '' entry; do
         while IFS= read -r -d '' file; do
             [[ -f "$file" ]] || die "阶段内含嵌套目录或异常对象：$file"
             case "$file" in
-                *.[jJ][pP][gG]|*.[jJ][pP][eE][gG]|*.[pP][nN][gG]|*.[rR][tT][fF]) ;;
+                *.[jJ][pP][gG]|*.[jJ][pP][eE][gG]|*.[pP][nN][gG]|*.[rR][tT][fF]|*.[tT][iI][fF]|*.[tT][iI][fF][fF]) ;;
                 *) die "发现本批规范之外的文件，请先人工检查：$file" ;;
             esac
             STAGE_COUNT=$((STAGE_COUNT + 1))
