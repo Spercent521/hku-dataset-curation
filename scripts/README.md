@@ -11,7 +11,8 @@ root/
 │   ├── README.md
 │   └── scripts/
 │       ├── README.md
-│       └── upload_dataset.sh
+│       ├── upload_dataset.sh
+│       └── verify_uploaded_dataset.py
 └── dataset/                    已审核的最终资料
     ├── 2014/
     │   ├── README.md           缺失记录
@@ -30,7 +31,9 @@ root/
 `dataset` 不要放进仓库里。它和仓库是同级文件夹。
 每个年份需要一份缺失记录 `README.md`。
 每个患者需要八个阶段文件夹，缺资料的文件夹留空。
-阶段内只放 JPG、JPEG、PNG 或 RTF 文件，不再套文件夹。
+阶段内可放 JPG、JPEG、PNG、GIF、TIFF 或 RTF 文件，默认不嵌套目录。
+2017 和 2018 的上传副本会排除病例下的「原始资料」，本地原件不动。
+2018 的「影像诊断」和「术后复查」允许最多两层影像子目录；DICOM 按「检查目录 → 序列目录 → `.dcm` 文件」保留，不打平序列。
 
 ## 登录
 
@@ -81,6 +84,17 @@ bash ./scripts/upload_dataset.sh --year 2015 --upload
 ```
 
 以后每年只改年份，不需要改脚本。
+
+## 只核验，不重传
+
+如果上传命令已返回成功，但随后的远端核验中断，先不要重跑 `--upload`。
+保持本地发布版不变，在仓库根目录运行（需要 Python 3 和已登录的 `hf`）：
+
+```bash
+python3 ./scripts/verify_uploaded_dataset.py --year 2018
+```
+
+脚本从离线预览取得预期清单，只读查询目标私有仓库的固定提交，并对比年度目录下每份文件的路径、大小和内容校验值。出现差异时会按缺少、多出或内容不同分别列出；先确认本地版是否在上传后改过。该核验不会修改远端，也不检查其他年份在上传期间是否发生变化。
 
 ## 哪些东西不会改
 

@@ -55,6 +55,30 @@ grep -q '本地目录：../dataset/2015/' "$WORK/2015.log"
 grep -q '远端目录：2015/' "$WORK/2015.log"
 printf 'PASS: repository-root usage, another year, and simplified options\n'
 
+for year in 2017 2018; do
+    cp -R "$SOURCE" "$WORK/dataset/$year"
+    case_dir="$WORK/dataset/$year/测试患者 0001"
+    mkdir "$case_dir/原始资料"
+    printf 'source-only\n' > "$case_dir/原始资料/source.ppt"
+    bash "$SCRIPT" --year "$year" > "$WORK/$year.log"
+    if grep -q "^  $year/.*原始资料/" "$WORK/$year.log"; then
+        exit 1
+    fi
+    [[ -f "$case_dir/原始资料/source.ppt" ]]
+done
+series="$WORK/dataset/2018/测试患者 0001/影像诊断/CT/序列-001"
+mkdir -p "$series"
+printf 'test-dicom\n' > "$series/001.dcm"
+bash "$SCRIPT" --year 2018 > "$WORK/2018.log"
+grep -q '其中 DICOM：1' "$WORK/2018.log"
+grep -q '^  2018/测试患者 0001/影像诊断/CT/序列-001/001.dcm$' "$WORK/2018.log"
+mkdir "$series/extra"
+if bash "$SCRIPT" --year 2018 > "$WORK/deep.log" 2>&1; then
+    exit 1
+fi
+grep -q '影像子目录超过' "$WORK/deep.log"
+printf 'PASS: 2017/2018 original exclusion and 2018 DICOM sequence layout\n'
+
 for scenario in success public inaccessible extras corruption checksum outside; do
     export MOCK_SCENARIO="$scenario"
     export MOCK_STATE="$WORK/state-$scenario"

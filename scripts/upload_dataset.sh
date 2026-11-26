@@ -34,6 +34,8 @@ usage() {
 
 目标固定为 AIMedrui/Spine_agentbench。仓库和 dataset 必须放在同一个父目录下。
 请把最终资料放在 ../dataset/YYYY/。
+2017 和 2018 的上传副本排除病例下的「原始资料」。
+2018 另保留影像诊断和术后复查内的影像子目录及 DICOM。
 使用本机 hf 登录，不接收或保存 Token。只上传已确认存在的私有仓库，
 不修改可见性、删除远端文件或修改本地最终版。空阶段通过临时 .gitkeep 保留。
 已有同路径文件可能被更新；远端年份目录有额外文件时停止。
@@ -101,6 +103,9 @@ RSYNC_ARGS=(-r)
 for pattern in "${EXCLUDES[@]}"; do
     RSYNC_ARGS+=(--exclude "$pattern")
 done
+if [[ "$YEAR" == 2017 || "$YEAR" == 2018 ]]; then
+    RSYNC_ARGS+=(--exclude '/*/原始资料/')
+fi
 
 # Rsync never follows links; reject them rather than silently dropping material.
 while IFS= read -r -d '' path; do
@@ -115,6 +120,7 @@ COPYFILE_DISABLE=1 rsync "${RSYNC_ARGS[@]}" -- "$SOURCE/" "$PAYLOAD/"
 
 CASE_COUNT=0
 CLINICAL_COUNT=0
+DICOM_COUNT=0
 PLACEHOLDER_COUNT=0
 while IFS= read -r -d '' entry; do
     if [[ -f "$entry" ]]; then
@@ -130,15 +136,34 @@ while IFS= read -r -d '' entry; do
     [[ "$count" == 8 ]] || die "${entry##*/} 必须恰好包含八个阶段目录"
     for stage in "${STAGES[@]}"; do
         STAGE_COUNT=0
+        depth=1
+        if [[ "$YEAR" == 2018 && ( "$stage" == 影像诊断 || "$stage" == 术后复查 ) ]]; then
+            depth=3
+        fi
         while IFS= read -r -d '' file; do
+            relative="${file#"$entry/$stage/"}"
+            if [[ -d "$file" && "$depth" == 3 ]]; then
+                case "$relative" in
+                    */*/*) die "影像子目录超过检查和序列两层：$file" ;;
+                esac
+                continue
+            fi
             [[ -f "$file" ]] || die "阶段内含嵌套目录或异常对象：$file"
             case "$file" in
-                *.[jJ][pP][gG]|*.[jJ][pP][eE][gG]|*.[pP][nN][gG]|*.[gG][iI][fF]|*.[rR][tT][fF]|*.[tT][iI][fF]|*.[tT][iI][fF][fF]) ;;
+                *.[jJ][pP][gG]|*.[jJ][pP][eE][gG]|*.[pP][nN][gG]|*.[gG][iI][fF]|*.[tT][iI][fF]|*.[tT][iI][fF][fF]) ;;
+                *.[rR][tT][fF])
+                    [[ "$relative" != */* ]] || die "影像子目录内不允许 RTF：$file"
+                    ;;
+                *.[dD][cC][mM])
+                    [[ "$depth" == 3 && "$relative" == */*/* ]] ||
+                        die "DICOM 必须位于 2018 影像阶段的检查和序列目录内：$file"
+                    DICOM_COUNT=$((DICOM_COUNT + 1))
+                    ;;
                 *) die "发现本批规范之外的文件，请先人工检查：$file" ;;
             esac
             STAGE_COUNT=$((STAGE_COUNT + 1))
             CLINICAL_COUNT=$((CLINICAL_COUNT + 1))
-        done < <(find "$entry/$stage" -mindepth 1 -maxdepth 1 -print0)
+        done < <(find "$entry/$stage" -mindepth 1 -maxdepth "$depth" -print0)
         if [[ "$STAGE_COUNT" == 0 ]]; then
             : > "$entry/$stage/.gitkeep"
             PLACEHOLDER_COUNT=$((PLACEHOLDER_COUNT + 1))
@@ -150,6 +175,12 @@ done < <(find "$PAYLOAD" -mindepth 1 -maxdepth 1 -print0)
 printf '本地目录：../dataset/%s/\n目标仓库：%s\n远端目录：%s/\n' "$YEAR" "$REPO" "$YEAR"
 printf '病例：%s；病例文件：%s；缺项 README：1；空阶段占位：%s\n' \
     "$CASE_COUNT" "$CLINICAL_COUNT" "$PLACEHOLDER_COUNT"
+if [[ "$YEAR" == 2017 || "$YEAR" == 2018 ]]; then
+    printf '病例下的「原始资料」不上传。\n'
+fi
+if [[ "$YEAR" == 2018 ]]; then
+    printf '其中 DICOM：%s。\n' "$DICOM_COUNT"
+fi
 printf '上传副本大小：%s\n' "$(du -sh "$PAYLOAD" | cut -f1)"
 printf '\n以下是将上传的全部路径：\n'
 while IFS= read -r -d '' file; do
