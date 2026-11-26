@@ -35,7 +35,7 @@ usage() {
 目标固定为 AIMedrui/Spine_agentbench。仓库和 dataset 必须放在同一个父目录下。
 请把最终资料放在 ../dataset/YYYY/。
 2017 和 2018 的上传副本排除病例下的「原始资料」。
-2018 另保留影像诊断和术后复查内的影像子目录及 DICOM。
+2016 另允许阶段内的 MOV 文件；2018 另保留影像诊断和术后复查内的影像子目录及 DICOM。
 使用本机 hf 登录，不接收或保存 Token。只上传已确认存在的私有仓库，
 不修改可见性、删除远端文件或修改本地最终版。空阶段通过临时 .gitkeep 保留。
 已有同路径文件可能被更新；远端年份目录有额外文件时停止。
@@ -153,6 +153,9 @@ while IFS= read -r -d '' entry; do
                 *.[jJ][pP][gG]|*.[jJ][pP][eE][gG]|*.[pP][nN][gG]|*.[gG][iI][fF]|*.[tT][iI][fF]|*.[tT][iI][fF][fF]) ;;
                 *.[rR][tT][fF])
                     [[ "$relative" != */* ]] || die "影像子目录内不允许 RTF：$file"
+                    ;;
+                *.[mM][oO][vV])
+                    [[ "$YEAR" == 2016 ]] || die "MOV 仅允许在 2016 批次上传：$file"
                     ;;
                 *.[dD][cC][mM])
                     [[ "$depth" == 3 && "$relative" == */*/* ]] ||

@@ -55,6 +55,19 @@ grep -q '本地目录：../dataset/2015/' "$WORK/2015.log"
 grep -q '远端目录：2015/' "$WORK/2015.log"
 printf 'PASS: repository-root usage, another year, and simplified options\n'
 
+cp -R "$SOURCE" "$WORK/dataset/2016"
+video="测试患者 0001/手术规划/术中视频.MOV"
+printf 'test-video\n' > "$WORK/dataset/2016/$video"
+bash "$SCRIPT" --year 2016 > "$WORK/2016.log"
+grep -q '病例文件：2；缺项 README：1；空阶段占位：6' "$WORK/2016.log"
+grep -Fxq "  2016/$video" "$WORK/2016.log"
+cp "$WORK/dataset/2016/$video" "$WORK/dataset/2015/$video"
+if bash "$SCRIPT" --year 2015 > "$WORK/mov-rejected.log" 2>&1; then
+    exit 1
+fi
+grep -q 'MOV 仅允许在 2016 批次上传' "$WORK/mov-rejected.log"
+printf 'PASS: MOV accepted for 2016 only\n'
+
 for year in 2017 2018; do
     cp -R "$SOURCE" "$WORK/dataset/$year"
     case_dir="$WORK/dataset/$year/测试患者 0001"
